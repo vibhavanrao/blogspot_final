@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="main.png">
+</head>
+
+<body onload="loadBlogs()">
+    <div class="flex justify-between bg-gray-200 h-15 shadow-xl p-4">
+        <img src="header.png" alt="blogger title" width="90px" class="pl-2">
+        <ul class="hidden md:flex space-x-4 pr-2">
+            <li class="flex pb-5"><img src="home.png" width="13px" class="mr-2">Home</li>
+            <li class="flex pb-5"><img src="info.png" width="13px" class="mr-2">About</li>
+            <li class="flex pb-5"><img src="log-in.png" width="13px" class="mr-2">Sign In</li>
+            <li class="flex pb-5"><img src="add-user.png" width="13px" class="mr-2">Create Account</li>
+        </ul>
+    </div>
+    <div id="blogContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6"></div>
+
+    <!-- Button to Add a Blog -->
+    <div class="text-center mt-6">
+        <a href="add.html">
+            <button class="text-xl p-4 bg-blue-500 rounded-lg shadow-xl hover:bg-blue-700 text-white">
+                Add New Blog
+            </button>
+        </a>
+    </div>
+
+    <!-- Blog Modal -->
+    <div id="blogModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+            <img id="modalImage" class="w-full h-48 object-cover rounded-lg">
+            <h2 id="modalTitle" class="text-xl font-bold mt-4"></h2>
+            <p id="modalDescription" class="text-gray-700 mt-2"></p>
+            <p class="mt-2 text-gray-500 text-sm">Views: <span id="modalViews"></span></p>
+            
+            <!-- Read More Button -->
+            <a id="modalReadMore" href="#" target="_blank" class="hidden mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 block text-center">
+                Read More
+            </a>
+    
+            <button onclick="closeModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function loadBlogs() {
+            let blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+            let blogmodel = document.getElementById("blogModal");
+
+            let blogContainer = document.getElementById("blogContainer");
+            blogContainer.innerHTML = "";
+
+            blogs.forEach((blog, index) => {
+                let blogDiv = document.createElement("div");
+                blogDiv.classList.add("p-6", "rounded-lg", "shadow-lg", "border", "border-gray-300", "cursor-pointer");
+
+                blogDiv.innerHTML = `
+                    <img src="${blog.image}" alt="blog image" class="w-full h-48 object-cover rounded-lg">
+                    <h2 class="text-xl font-semibold mt-4">${blog.blogTitle}</h2>
+                    <p class="text-gray-600 mt-2">${blog.blogDescription.substring(0, 50)}...</p>
+                    <p class="mt-2 text-gray-500 text-sm">Views: <span id="viewCount${index}">${blog.views || 0}</span></p>
+                    
+                    <div class="flex space-x-2 mt-4">
+                        <button onclick="editBlog(${index})" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+                            Edit
+                        </button>
+                        <button onclick="deleteBlog(${index})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                            Delete
+                        </button>
+                    </div>
+                `;
+
+                blogDiv.onclick = function () {
+                    openModal(index);
+                };
+
+                blogContainer.appendChild(blogDiv);
+            });
+        }
+
+        function deleteBlog(index) {
+            let blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+            blogs.splice(index, 1);
+            localStorage.setItem("blogs", JSON.stringify(blogs));
+            loadBlogs();
+        }
+
+        function editBlog(index) {
+            localStorage.setItem("editIndex", index);
+            window.location.href = "edit.html";
+        }
+
+        function openModal(index) {
+            let blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+            let blog = blogs[index];
+
+            document.getElementById("modalImage").src = blog.image;
+            document.getElementById("modalTitle").textContent = blog.blogTitle;
+            document.getElementById("modalDescription").textContent = blog.blogDescription;
+            document.getElementById("modalViews").textContent = blog.views || 0;
+
+            let readMoreBtn = document.getElementById("modalReadMore");
+            if (blog.blogLink) {
+                readMoreBtn.href = blog.blogLink; // Set the link
+                readMoreBtn.classList.remove("hidden"); // Show the button
+            } else {
+                readMoreBtn.classList.add("hidden"); // Hide if no link is available
+            }
+
+            if (!blog.views) {
+                blog.views = 0;
+            }
+            blog.views++;
+
+            localStorage.setItem("blogs", JSON.stringify(blogs));
+            loadBlogs();
+
+            document.getElementById("blogModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("blogModal").classList.add("hidden");
+        }
+    </script>
+</body>
+
+</html>

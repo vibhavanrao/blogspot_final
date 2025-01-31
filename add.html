@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="main.png">
+</head>
+
+<body>
+    <div class="flex justify-between bg-gray-200 h-15 shadow-xl">
+        <img src="header.png" alt="blogger title" width="90px" class="pl-2 left-item">
+        <ul class="flex space-x-4 right-item pt-3 pr-2">
+            <li class="flex pb-5"><img src="home.png" width="13px" class="mr-2">Home</li>
+            <li class="flex pb-5"><img src="info.png" width="13px" class="mr-2">About</li>
+            <li class="flex pb-5"><img src="log-in.png" width="13px" class="mr-2">Sign In</li>
+            <li class="flex pb-5"><img src="add-user.png" width="13px" class="mr-2">Create Account</li>
+        </ul>
+    </div>
+    <div class="flex bg-green-100 h-screen justify-center items-center">
+        <div class="bg-white p-8 w-96 rounded-lg shadow-lg">
+            <h1 class="font-bold text-xl text-center mb-4">Add a new blog</h1>
+            <form onsubmit="saveblog(event)">
+                <label class="text-gray-800">Cover Photo</label>
+                <input type="file" id="blogImage" class="block w-full border rounded-md p-2 mb-4" accept="image/*"
+                    required>
+                <label class="text-gray-800">Blog Link</label>
+                <input type="url" id="blogLink" class="block w-full border rounded-md p-2 mb-4"
+                    placeholder="Enter the link of the blog(if available)">
+                <label class="text-gray-800">Blog Title</label>
+                <input type="text" id="blogTitle" class="block w-full border rounded-md p-2 mb-4"
+                    placeholder="Enter the title" required>
+                <label class="text-gray-800">Blog Description</label>
+                <textarea id="blogDescription" class="block w-full border rounded-md p-2 mb-4"
+                    placeholder="write the description" required></textarea>
+                <button
+                    class="bg-blue-500 hover:bg-blue-600 rounded-lg shadow-lg p-2 justify-center w-full hover:text-white">Submit</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function saveblog(event){
+            //prevents form from loading with default values
+            event.preventDefault();
+            let blogTitle = document.getElementById("blogTitle").value;
+            let blogLink = document.getElementById("blogLink").value;
+            let blogDescription = document.getElementById("blogDescription").value;
+            let fileInput = document.getElementById("blogImage");
+
+            if(fileInput.files.length == 0){
+                alert("please upload a image");
+                return;
+            }
+
+            let file = fileInput.files[0];
+            let reader = new FileReader();
+
+            reader.onloadend = function(){
+                let image = reader.result;
+                let newBlog = {image,blogTitle,blogLink,blogDescription};
+                let blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+                console.log(blogs);
+                blogs.push(newBlog);
+                localStorage.setItem("blogs",JSON.stringify(blogs));
+                window.location.href = "index.html";
+            }
+            reader.readAsDataURL(file);
+        }
+    </script>
+
+</body>
+
+</html>
